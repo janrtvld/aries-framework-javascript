@@ -26,6 +26,7 @@ import { IndyStorageService } from '../../storage/IndyStorageService'
 import { IndyWallet } from '../../wallet/IndyWallet'
 import { WalletError } from '../../wallet/error'
 import { Agent } from '../Agent'
+import { AgentConfig } from '../AgentConfig'
 import { Dispatcher } from '../Dispatcher'
 import { EnvelopeService } from '../EnvelopeService'
 import { MessageReceiver } from '../MessageReceiver'
@@ -91,6 +92,21 @@ describe('Agent', () => {
       await agent.initialize()
       expect(wallet.isInitialized).toBe(true)
       expect(agent.isInitialized).toBe(true)
+    })
+  })
+
+  describe('Change label', () => {
+    let agent: Agent
+
+    it('should return new label after setter is called', async () => {
+      expect.assertions(2)
+      const newLabel = 'Agent: Agent Class Test 2'
+
+      agent = new Agent(config, dependencies)
+      expect(agent.config.label).toBe(config.label)
+
+      agent.config.label = newLabel
+      expect(agent.config.label).toBe(newLabel)
     })
   })
 

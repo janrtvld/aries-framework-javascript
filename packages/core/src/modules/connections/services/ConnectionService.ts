@@ -68,6 +68,7 @@ export class ConnectionService {
     routing: Routing
     autoAcceptConnection?: boolean
     alias?: string
+    myLabel?: string
     multiUseInvitation?: boolean
   }): Promise<ConnectionProtocolMsgReturnType<ConnectionInvitationMessage>> {
     // TODO: public did
@@ -83,7 +84,7 @@ export class ConnectionService {
     const { didDoc } = connectionRecord
     const [service] = didDoc.didCommServices
     const invitation = new ConnectionInvitationMessage({
-      label: this.config.label,
+      label: config?.myLabel ?? this.config.label,
       recipientKeys: service.recipientKeys,
       serviceEndpoint: service.serviceEndpoint,
       routingKeys: service.routingKeys,
@@ -154,14 +155,17 @@ export class ConnectionService {
    * @param connectionId the id of the connection for which to create a connection request
    * @returns outbound message containing connection request
    */
-  public async createRequest(connectionId: string): Promise<ConnectionProtocolMsgReturnType<ConnectionRequestMessage>> {
+  public async createRequest(
+    connectionId: string,
+    myLabel?: string
+  ): Promise<ConnectionProtocolMsgReturnType<ConnectionRequestMessage>> {
     const connectionRecord = await this.connectionRepository.getById(connectionId)
 
     connectionRecord.assertState(ConnectionState.Invited)
     connectionRecord.assertRole(ConnectionRole.Invitee)
 
     const connectionRequest = new ConnectionRequestMessage({
-      label: this.config.label,
+      label: myLabel ?? this.config.label,
       did: connectionRecord.did,
       didDoc: connectionRecord.didDoc,
       imageUrl: this.config.connectionImageUrl,

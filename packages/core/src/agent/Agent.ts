@@ -113,6 +113,10 @@ export class Agent {
       .subscribe()
   }
 
+  public get config() {
+    return this.agentConfig
+  }
+
   public registerInboundTransport(inboundTransport: InboundTransport) {
     this.messageReceiver.registerInboundTransport(inboundTransport)
   }
