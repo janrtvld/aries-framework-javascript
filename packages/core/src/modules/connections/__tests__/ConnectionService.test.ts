@@ -90,6 +90,24 @@ describe('ConnectionService', () => {
       )
     })
 
+    it('returns a connection record with invitation with custom label', async () => {
+      expect.assertions(1)
+
+      const { message: invitation } = await connectionService.createInvitation({
+        routing: myRouting,
+        myLabel: 'Custom Label',
+      })
+
+      expect(invitation).toEqual(
+        expect.objectContaining({
+          label: 'Custom Label',
+          recipientKeys: [expect.any(String)],
+          routingKeys: [],
+          serviceEndpoint: config.endpoints[0],
+        })
+      )
+    })
+
     it('saves the connection record in the connection repository', async () => {
       expect.assertions(1)
 
@@ -238,6 +256,17 @@ describe('ConnectionService', () => {
       expect(message.connection.did).toBe('test-did')
       expect(message.connection.didDoc).toEqual(connection.didDoc)
       expect(message.imageUrl).toBe(connectionImageUrl)
+    })
+
+    it('returns a connection request message containing a custom label', async () => {
+      expect.assertions(1)
+
+      const connection = getMockConnection()
+      mockFunction(connectionRepository.getById).mockReturnValue(Promise.resolve(connection))
+
+      const { message } = await connectionService.createRequest('test', 'Custom Label')
+
+      expect(message.label).toBe('Custom Label')
     })
 
     it(`throws an error when connection role is ${ConnectionRole.Inviter} and not ${ConnectionRole.Invitee}`, async () => {
