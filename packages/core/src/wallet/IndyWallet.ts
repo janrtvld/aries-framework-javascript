@@ -74,12 +74,19 @@ export class IndyWallet implements Wallet {
    * @throws {WalletError} if another error occurs
    */
   public async createAndOpen(walletConfig: WalletConfig): Promise<void> {
-    this.logger.debug(`Creating wallet '${walletConfig.id}' using SQLite storage`)
+    this.logger.debug(`Creating wallet '${walletConfig.id}' using '${walletConfig.storageType ?? 'SQLite'}' storage`)
+
+    // if postgres => load postgres storage plugin
+
+    // add storageconfig options to createWallet
 
     try {
       await this.indy.createWallet(
-        { id: walletConfig.id },
-        { key: walletConfig.key, key_derivation_method: walletConfig.keyDerivationMethod }
+        { id: walletConfig.id, storage_type: walletConfig.storageType ?? 'default' },
+        {
+          key: walletConfig.key,
+          key_derivation_method: walletConfig.keyDerivationMethod,
+        }
       )
 
       this.walletConfig = walletConfig
@@ -304,6 +311,10 @@ export class IndyWallet implements Wallet {
         )
       }
     }
+  }
+
+  private async loadPostgresPlugin(): Promise<void> {
+    this.logger.debug('Loading Postgres wallet plugin')
   }
 
   public async initPublicDid(didConfig: DidConfig) {
