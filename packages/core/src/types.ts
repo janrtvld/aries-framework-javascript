@@ -16,23 +16,37 @@ export const enum KeyDerivationMethod {
   Raw = 'RAW',
 }
 
-export const enum StorageType {
+export const enum WalletStorageType {
   /** default value in indy-sdk. Will be used when no value is provided */
   SQLite = 'default',
   Postgres = 'postgres_storage',
 }
 
-export interface StorageConfig {
-  [key: string]: unknown
-  path?: string | undefined
+export const enum WalletScheme {
+  DatabasePerWallet = 'DatabasePerWallet',
+  MultiWalletSingleTable = 'MultiWalletSingleTable',
+  MultiWalletSingleTableSharedPool = 'MultiWalletSingleTableSharedPool',
+}
+
+export interface WalletStorageCredentials {
+  account: string
+  password: string
+  adminAccount: string
+  adminPassword: string
+}
+
+export interface WalletStorageConfig {
+  url: string
+  walletSchema: WalletScheme
 }
 
 export interface WalletConfig {
   id: string
   key: string
   keyDerivationMethod?: KeyDerivationMethod
-  storageType?: StorageType
-  storageConfig?: StorageConfig
+  storageType?: WalletStorageType
+  storageConfig?: WalletStorageConfig
+  storageCredentials?: WalletStorageCredentials
 }
 
 export interface WalletExportImportConfig {

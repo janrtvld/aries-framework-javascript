@@ -1,5 +1,12 @@
 import type { Logger } from '../logger'
-import type { EncryptedMessage, DecryptedMessageContext, WalletConfig, WalletExportImportConfig } from '../types'
+import type {
+  EncryptedMessage,
+  DecryptedMessageContext,
+  WalletConfig,
+  WalletExportImportConfig,
+  WalletStorageCredentials,
+  WalletStorageConfig,
+} from '../types'
 import type { Buffer } from '../utils/buffer'
 import type { Wallet, DidInfo, DidConfig } from './Wallet'
 import type { default as Indy } from 'indy-sdk'
@@ -8,6 +15,7 @@ import { Lifecycle, scoped } from 'tsyringe'
 
 import { AgentConfig } from '../agent/AgentConfig'
 import { AriesFrameworkError } from '../error'
+import { WalletStorageType } from '../types'
 import { JsonEncoder } from '../utils/JsonEncoder'
 import { isIndyError } from '../utils/indyError'
 
@@ -76,9 +84,13 @@ export class IndyWallet implements Wallet {
   public async createAndOpen(walletConfig: WalletConfig): Promise<void> {
     this.logger.debug(`Creating wallet '${walletConfig.id}' using '${walletConfig.storageType ?? 'SQLite'}' storage`)
 
-    // if postgres => load postgres storage plugin
-
-    // add storageconfig options to createWallet
+    if (
+      walletConfig.storageType == WalletStorageType.Postgres &&
+      walletConfig.storageConfig &&
+      walletConfig.storageCredentials
+    ) {
+      await this.loadPostgresPlugin(walletConfig.storageConfig, walletConfig.storageCredentials)
+    }
 
     try {
       await this.indy.createWallet(
@@ -313,7 +325,7 @@ export class IndyWallet implements Wallet {
     }
   }
 
-  private async loadPostgresPlugin(): Promise<void> {
+  private async loadPostgresPlugin(config: WalletStorageConfig, credentials: WalletStorageCredentials): Promise<void> {
     this.logger.debug('Loading Postgres wallet plugin')
   }
 
